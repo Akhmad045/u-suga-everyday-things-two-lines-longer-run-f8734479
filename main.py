@@ -55,6 +55,10 @@ def validate(text):
             raise ValueError(f"line {i} has leading or trailing whitespace")
         if "\r" in line:
             raise ValueError(f"line {i} contains a carriage return")
+        if not line.endswith("."):
+            raise ValueError(
+                f"line {i} must end with a full stop (one sentence)"
+            )
     return text
 
 
@@ -70,6 +74,8 @@ def self_test():
         ("\nleading", "leading newline"),
         ("a \nb", "trailing whitespace on line 1"),
         ("a\n b", "leading whitespace on line 2"),
+        ("A sentence\nNo full stop", "line 2 without full stop"),
+        ("No full stop\nSecond line.", "line 1 without full stop"),
     ]
     for text, label in cases:
         try:
@@ -79,7 +85,7 @@ def self_test():
         else:
             raise SystemExit(f"self-test FAIL: {label} was accepted")
     # boundary: exactly 400 chars across two lines must pass
-    validate("y" * 199 + "\n" + "z" * 200)
+    validate("y" * 198 + "." + "\n" + "z" * 199 + ".")
     print("self-test ok: 400-char boundary accepted")
     # the entry itself must pass
     validate(ENTRY)
